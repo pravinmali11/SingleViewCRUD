@@ -68,7 +68,7 @@ namespace SingleViewCRUD.Controllers
 
             return Json(stateList, JsonRequestBehavior.AllowGet);
         }
-
+        //Get Countries
         public JsonResult GetCities(int stateId)
         {
             Users objBal = new Users { StateId = stateId };
