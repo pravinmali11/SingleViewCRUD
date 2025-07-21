@@ -38,7 +38,7 @@ namespace SingleViewCRUD.Controllers
             return Json(new { success = false, message = "Please correct the highlighted errors." });
         }
 
-
+        //View Data in List
         private List<SelectListItem> GetCountries()
         {
             DataTable dt = obj.Country();
