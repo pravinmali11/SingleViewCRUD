@@ -1,0 +1,305 @@
+﻿@model IEnumerable<SingleViewCRUD.Models.Users>
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2 class="mb-4 text-primary fw-bold text-center">View All Registered User List</h2>
+
+<div class="text-end mb-3">
+    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#registerModal">Add New User</button>
+</div>
+
+<div class="table-responsive shadow-sm rounded">
+    <table class="table table-striped table-hover align-middle">
+        <thead class="table-primary">
+            <tr>
+                <th>@Html.DisplayNameFor(model => model.First().Name)</th>
+                <th>@Html.DisplayNameFor(model => model.First().Gender)</th>
+                <th>@Html.DisplayNameFor(model => model.First().Phone)</th>
+                <th>@Html.DisplayNameFor(model => model.First().Email)</th>
+                <th>@Html.DisplayNameFor(model => model.First().Password)</th>
+                <th>@Html.DisplayNameFor(model => model.First().Country)</th>
+                <th>@Html.DisplayNameFor(model => model.First().State)</th>
+                <th>@Html.DisplayNameFor(model => model.First().City)</th>
+                <th class="text-center">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Name</td>
+                    <td>@item.Gender</td>
+                    <td>@item.Phone</td>
+                    <td>@item.Email</td>
+                    <td>@item.Password</td>
+                    <td>@item.Country</td>
+                    <td>@item.State</td>
+                    <td>@item.City</td>
+                    <td class="text-center">
+                        <button class="btn btn-sm btn-primary me-1 editUserBtn" data-id="@item.ID" data-bs-toggle="modal" data-bs-target="#editModal">Edit</button>
+                        @Html.ActionLink("Details", "Details", new { id = item.ID }, new { @class = "btn btn-sm btn-info me-1 text-white" })
+                        @Html.ActionLink("Delete", "Delete", new { id = item.ID }, new { @class = "btn btn-sm btn-danger" })
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@*Register*@
+<div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="registerModalLabel">Register New User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                @using (Html.BeginForm("SaveUser", "Home", FormMethod.Post, new { id = "userForm" }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger mb-3" })
+
+
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-end"><label>Name</label></div>
+                        <div class="col-sm-8">@Html.TextBox("Name", null, new { @class = "form-control" })</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-end"><label>Gender</label></div>
+                        <div class="col-sm-8">
+                            @Html.RadioButton("Gender", "Male") <span>Male</span>
+                            @Html.RadioButton("Gender", "Female") <span>Female</span>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-end"><label>Phone</label></div>
+                        <div class="col-sm-8">@Html.TextBox("Phone", null, new { @class = "form-control" })</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-end"><label>Email</label></div>
+                        <div class="col-sm-8">@Html.TextBox("Email", null, new { @class = "form-control" })</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-end"><label>Password</label></div>
+                        <div class="col-sm-8">@Html.Password("Password", null, new { @class = "form-control" })</div>
+                    </div>
+
+
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-end"><label>Country</label></div>
+                        <div class="col-sm-8">@Html.DropDownList("CountryId", ViewBag.CountryList as List<SelectListItem>, "Select Country", new { @class = "form-control", id = "ddlCountry" })</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-end"><label>State</label></div>
+                        <div class="col-sm-8"><select id="ddlState" name="StateId" class="form-control"><option>Select State</option></select></div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-end"><label>City</label></div>
+                        <div class="col-sm-8"><select id="ddlCity" name="CityId" class="form-control"><option>Select City</option></select></div>
+                    </div>
+
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-success w-50">Save User</button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@*Edit*@
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="editModalLabel">Edit User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editUserForm" method="post" action="@Url.Action("Edit", "Home")">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="editUserId" name="ID" />
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-end"><label for="editName">Name</label></div>
+                        <div class="col-sm-8">
+                            <input type="text" id="editName" name="Name" class="form-control" placeholder="Enter full name" />
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-end"><label>Gender</label></div>
+                        <div class="col-sm-8">
+                            @Html.RadioButton("Gender", "Male") <span>Male</span>
+                            @Html.RadioButton("Gender", "Female") <span>Female</span>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-end"><label>Phone</label></div>
+                        <div class="col-sm-8">@Html.TextBox("Phone", null, new { @class = "form-control" })</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-end"><label>Email</label></div>
+                        <div class="col-sm-8">@Html.TextBox("Email", null, new { @class = "form-control" })</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-end"><label>Password</label></div>
+                        <div class="col-sm-8">@Html.Password("Password", null, new { @class = "form-control" })</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-end"><label>Country</label></div>
+                        <div class="col-sm-8">
+                            <select id="ddlCountryEdit" name="CountryId" class="form-control">
+                                <option value="">Select Country</option>
+                                @foreach (var item in ViewBag.CountryList as List<SelectListItem>)
+                                {
+                                    <option value="@item.Value">@item.Text</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-end"><label>State</label></div>
+                        <div class="col-sm-8">
+                            <select id="ddlStateEdit" name="StateId" class="form-control">
+                                <option value="">Select State</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-end"><label>City</label></div>
+                        <div class="col-sm-8">
+                            <select id="ddlCityEdit" name="CityId" class="form-control">
+                                <option value="">Select City</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-success w-50">Update User</button>
+                    </div>
+
+                </form>
+
+        </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/jqueryval")
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function loadStates(countryId, stateDropdown) {
+            $(stateDropdown).html('<option>Loading...</option>');
+            $.getJSON('/Home/GetStates', { countryId: countryId }, function (states) {
+                $(stateDropdown).html('<option>Select State</option>');
+                $.each(states, function (i, state) {
+                    $(stateDropdown).append($('<option>').val(state.StateId).text(state.StateName));
+                });
+            });
+        }
+
+        function loadCities(stateId, cityDropdown) {
+            $(cityDropdown).html('<option>Loading...</option>');
+            $.getJSON('/Home/GetCities', { stateId: stateId }, function (cities) {
+                $(cityDropdown).html('<option>Select City</option>');
+                $.each(cities, function (i, city) {
+                    $(cityDropdown).append($('<option>').val(city.CityId).text(city.CityName));
+                });
+            });
+        }
+
+        $(document).ready(function () {
+            $(document).on("change","#ddlCountry",function () {
+                loadStates($(this).val(), '#ddlState');
+                $('#ddlCity').html('<option>Select City</option>');
+            });
+
+            $('#ddlState').change(function () {
+                loadCities($(this).val(), '#ddlCity');
+            });
+
+            $('#userForm').submit(function (e) {
+                e.preventDefault();
+                if (!$(this).valid()) return;
+                $.ajax({
+                    type: 'POST',
+                    url: $(this).attr('action'),
+                    data: $(this).serialize(),
+                    success: function (response) {
+                        if (response.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'User Added!',
+                                text: response.message
+                            }).then(() => {
+                                location.reload();
+                            });
+                        }
+                    }
+                });
+            });
+        });
+
+       
+        $(function () {
+            $('.editUserBtn').click(function () {
+                var id = $(this).data('id');
+                $.getJSON('/Home/Edit', { id: id }, function (data) {
+                    if (!data) return;
+
+                    $('#editUserId').val(data.ID);
+                    $('#editName').val(data.Name);41
+                    $('input[name="Gender"][value="' + data.Gender + '"]').prop('checked', true);
+                    $('input[name="Phone"]').val(data.Phone);
+                    $('input[name="Email"]').val(data.Email);
+                    $('input[name="Password"]').val(data.Password);
+
+                    $('#ddlCountryEdit').val(data.CountryId);
+                    loadStates(data.CountryId, '#ddlStateEdit', data.StateId, function () {
+                        loadCities(data.StateId, '#ddlCityEdit', data.CityId);
+                    });
+                    setTimeout(function () {
+                        $()
+                    })
+                });
+            });
+
+            $('#editUserForm').submit(function (e) {
+                e.preventDefault();
+                $.post('/Home/Edit', $(this).serialize(), function () {
+                    location.reload();
+                });
+            });
+
+            $('#ddlCountryEdit').change(function () {
+                var countryId = $(this).val();
+                loadStates(countryId, '#ddlStateEdit');
+                $('#ddlCityEdit').html('<option>Select City</option>');
+            });
+
+            $('#ddlStateEdit').change(function () {
+                var stateId = $(this).val();
+                loadCities(stateId, '#ddlCityEdit');
+            });
+        });
+        function loadCities(stateId, cityDropdown, selectedCityId = null) {
+            $(cityDropdown).html('<option>Loading...</option>');
+            $.getJSON('/Home/GetCities', { stateId: stateId }, function (cities) {
+                $(cityDropdown).html('<option>Select City</option>');
+                $.each(cities, function (i, city) {
+                    $(cityDropdown).append($('<option>').val(city.CityId).text(city.CityName));
+                });
+                if (selectedCityId) {
+                    $(cityDropdown).val(selectedCityId);
+                }
+            });
+        }
+    </script>
+}
